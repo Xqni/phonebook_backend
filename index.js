@@ -54,7 +54,7 @@ app.get('/api/persons/:id', (request, response, next) => {
         .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response, next) => {
+app.post('/api/persons', async (request, response, next) => {
     const body = request.body
 
     const person = new Person({
@@ -62,8 +62,9 @@ app.post('/api/persons', (request, response, next) => {
         number: body.number,
     })
 
-    const error = person.validateSync()
-    if (error) {
+    try {
+        await person.validateSync()
+    } catch (error) {
         next(error)
     }
 
