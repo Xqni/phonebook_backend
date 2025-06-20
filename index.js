@@ -62,7 +62,13 @@ app.post('/api/persons', (request, response, next) => {
         number: body.number,
     })
 
-    person.save()
+    const error = person.validateSync()
+    if (error) {
+        next(error)
+    }
+
+    person
+        .save()
         .then(savedPerson => {
             response.json(savedPerson)
         })
@@ -93,10 +99,13 @@ app.delete('/api/persons/:id', (request, response, next) => {
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
 
+
+    // if the person we are searching for doesnt exist
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
-    } else if (error.name === 'ValidationError') {
-        return response.status(400).send({ error: 'Name should be longer than 3 characters' })
+    } else if (error.name === 'ValidationError') { // if the person is not what we defined it to be
+        const messages = Object.values(error.errors).map(err => err.message) // extracts all the custom errors
+        return response.status(400).send({ error: messages.join(', ') }) // sends the custom message
     }
 
     next(error)
