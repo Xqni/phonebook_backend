@@ -101,7 +101,7 @@ const errorHandler = (error, request, response, next) => {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') { // if the person is not what we defined it to be
         const messages = Object.values(error.errors).map(err => err.message) // extracts all the custom errors
-        return response.status(400).json({ error: messages.join(', ') }) // sends the custom message
+        return response.status(400).send({ error: messages.join(', ') }) // sends the custom message
     }
 
     next(error)
